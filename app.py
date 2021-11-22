@@ -22,6 +22,10 @@ async def on_message(message):
         return
     if message.guild.name != 'FPL Analytics Community':
         return
+
+    allowed_channels = ['⚛bot-test-area', '⚙bot']
+    if message.channel.name not in allowed_channels:
+        return
     if message.content.startswith('fbref'):
         words = message.content.split()
         if len(words) > 1:
