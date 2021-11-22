@@ -55,4 +55,4 @@ try:
     config = dotenv_values(".env")
 except:
     config = {}
-client.run(config.get('TOKEN', os.environ('TOKEN')))
+client.run(config.get('TOKEN', os.environ.get('TOKEN')))
