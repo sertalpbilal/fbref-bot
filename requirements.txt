@@ -1,6 +1,7 @@
 requests
 discord
 python-dotenv
+lxml
 pandas
 fuzzywuzzy
 python-Levenshtein
