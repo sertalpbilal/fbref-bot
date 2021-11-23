@@ -53,10 +53,17 @@ async def on_message(message):
             url = f"https://fbref.com/en/players/{fbref_id}/"
             df = pd.read_html(url)
             target = df[0].dropna()
-            await message.channel.send("```" + target.to_string() + "```\nLink: " + str(url))
+            embed = discord.Embed(title='Player Info', url=url, description="", color=discord.Color.blue())
+            values = target.to_dict(orient='records')
+            embed.set_thumbnail(url=f"https://fbref.com/req/202005121/images/headshots/{fbref_id}_2018.jpg")
+            for v in values:
+                embed.add_field(name=v['Statistic'] + ' (Per 90)', value=v['Per 90'], inline=True)
+            # await message.channel.send("```" + target.to_string() + "```\nLink: " + str(url))
+            await message.channel.send(embed=embed)
 
 try:
     config = dotenv_values(".env")
 except:
     config = {}
 client.run(config.get('TOKEN', os.environ.get('TOKEN')))
+
