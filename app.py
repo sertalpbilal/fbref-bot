@@ -45,6 +45,8 @@ async def on_message(message):
         elif words[1] in keywords:
             key = words[1]
             player = ' '.join(words[2:])
+        else:
+            player = ' '.join(words[1:])
 
         def get_ratio(row):
             name = row['web_name']
