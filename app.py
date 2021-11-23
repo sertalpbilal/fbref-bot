@@ -28,7 +28,7 @@ async def on_message(message):
     allowed_channels = ['⚛bot-test-area', '⚙bot']
     if message.channel.name not in allowed_channels:
         return
-    if message.content.startswith('fbref'):
+    if message.content.lower().startswith('fbref') or message.content.lower().startswith('!fbref'):
         words = message.content.split()
         if len(words) > 1:
             player = words[1]
