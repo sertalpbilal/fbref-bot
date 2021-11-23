@@ -31,7 +31,7 @@ async def on_message(message):
         if len(words) > 1:
             player = words[1]
         else:
-            await message.channel.send('Use "fbref player_name stat_name(optional) number_of_games(optional)" to request. Example: "fbref Salah xG 5"')
+            await message.channel.send('Use "fbref player_name to request. Example: "fbref Salah"')
             return
 
         def get_ratio(row):
@@ -53,12 +53,11 @@ async def on_message(message):
             url = f"https://fbref.com/en/players/{fbref_id}/"
             df = pd.read_html(url)
             target = df[0].dropna()
-            embed = discord.Embed(title='Player Info', url=url, description="", color=discord.Color.blue())
+            embed = discord.Embed(title=f"{player_entry['first_name']} {player_entry['second_name']} - Overview", url=url, description="", color=discord.Color.blue())
             values = target.to_dict(orient='records')
             embed.set_thumbnail(url=f"https://fbref.com/req/202005121/images/headshots/{fbref_id}_2018.jpg")
             for v in values:
-                embed.add_field(name=v['Statistic'] + ' (Per 90)', value=v['Per 90'], inline=True)
-            # await message.channel.send("```" + target.to_string() + "```\nLink: " + str(url))
+                embed.add_field(name=v['Statistic'], value=f"Per 90: {v['Per 90']}\nPercentile: {v['Percentile']}", inline=True)
             await message.channel.send(embed=embed)
 
 try:
