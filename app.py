@@ -12,6 +12,8 @@ r = requests.get('https://fantasy.premierleague.com/api/bootstrap-static/')
 elements = pd.DataFrame(r.json()['elements'])
 elements = pd.merge(elements, id_map, left_on="id", right_on="fpl_id", how="left")
 
+element_type = {1: 'GK', 2: 'DF', 3: 'MD', 4: 'FW'}
+
 @client.event
 async def on_ready():
     print(f'Bot is working! {client.user}')
@@ -55,9 +57,12 @@ async def on_message(message):
             target = df[0].dropna()
             embed = discord.Embed(title=f"{player_entry['first_name']} {player_entry['second_name']} - Overview", url=url, description="", color=discord.Color.blue())
             values = target.to_dict(orient='records')
-            embed.set_thumbnail(url=f"https://fbref.com/req/202005121/images/headshots/{fbref_id}_2018.jpg")
+            # embed.set_thumbnail(url=f"https://fbref.com/req/202005121/images/headshots/{fbref_id}_2018.jpg")
+            embed.set_thumbnail(url="https://resources.premierleague.com/premierleague/photos/players/110x140/p" + player_entry['photo'].replace(".jpg", ".png"))
+            # embed.add_field(name='Name', value=player_entry['web_name'], inline=True)
+            # embed.add_field(name='Position', value=element_type[player_entry['element_type']], inline=True)
             for v in values:
-                embed.add_field(name=v['Statistic'], value=f"Per 90: {v['Per 90']}\nPercentile: {v['Percentile']}", inline=True)
+                embed.add_field(name=v['Statistic'], value=f"{v['Per 90']}  **Per 90**\n{v['Percentile']}  **Percentile**", inline=True)
             await message.channel.send(embed=embed)
 
 try:
