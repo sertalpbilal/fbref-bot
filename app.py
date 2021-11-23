@@ -11,7 +11,6 @@ id_map = pd.read_csv("id_map.csv")
 r = requests.get('https://fantasy.premierleague.com/api/bootstrap-static/')
 elements = pd.DataFrame(r.json()['elements'])
 elements = pd.merge(elements, id_map, left_on="id", right_on="fpl_id", how="left")
-elements['fbref_id'] = elements['fbref_id'].astype(int)
 
 element_type = {1: 'GK', 2: 'DF', 3: 'MD', 4: 'FW'}
 
