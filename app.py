@@ -11,6 +11,7 @@ id_map = pd.read_csv("id_map.csv")
 r = requests.get('https://fantasy.premierleague.com/api/bootstrap-static/')
 elements = pd.DataFrame(r.json()['elements'])
 elements = pd.merge(elements, id_map, left_on="id", right_on="fpl_id", how="left")
+elements['fbref_id'] = elements['fbref_id'].astype(int)
 
 element_type = {1: 'GK', 2: 'DF', 3: 'MD', 4: 'FW'}
 
@@ -81,7 +82,11 @@ async def on_message(message):
             # embed.add_field(name='Name', value=player_entry['web_name'], inline=True)
             # embed.add_field(name='Position', value=element_type[player_entry['element_type']], inline=True)
             for v in values:
-                embed.add_field(name=v['Statistic'], value=f"{v['Per 90']}  **Per 90**\n{v['Percentile']}  **Percentile**", inline=True)
+                try:
+                    embed.add_field(name=v['Statistic'], value=f"{v['Per 90']}  **Per 90**\n{v['Percentile']}  **Percentile**", inline=True)
+                except:
+                    await message.channel.send(f"Error occurred while reading stats for player {player}, fbref url: {url}")
+                    return
             await message.channel.send(embed=embed)
 
 try:
