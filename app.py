@@ -14,6 +14,8 @@ elements = pd.merge(elements, id_map, left_on="id", right_on="fpl_id", how="left
 
 element_type = {1: 'GK', 2: 'DF', 3: 'MD', 4: 'FW'}
 
+# todo: add slash commands!
+
 @client.event
 async def on_ready():
     print(f'Bot is working! {client.user}')
@@ -30,30 +32,45 @@ async def on_message(message):
         return
     if message.content.lower().startswith('fbref') or message.content.lower().startswith('!fbref'):
         words = message.content.split()
-        if len(words) > 1:
-            player = words[1]
-        else:
+
+        if len(words) == 1:
             await message.channel.send('Use "fbref player_name to request. Example: "fbref Salah"')
             return
+        
+        keywords = ['info', 'goal', 'assist', 'xG', 'xA']
+        key = 'info'
+
+        if len(words) == 2:
+            player = words[1]
+        elif words[1] in keywords:
+            key = words[1]
+            player = ' '.join(words[2:])
 
         def get_ratio(row):
             name = row['web_name']
             return fuzz.token_sort_ratio(name, player)
 
         el_copy = elements.copy()
+        el_copy.dropna(subset=['fbref_id'], inplace=True)
         el_copy['match'] = elements.apply(get_ratio, axis=1)
         el_copy.sort_values(by='match', inplace=True, ascending=False)
         player_entry = el_copy.iloc[0].to_dict()
 
-        # keywords = ['goal', 'assist', 'xG', 'xA']
-
-        if len(words) == 2: # and words[-1] not in keywords:
+        if key == 'info':
             # general info
             print(message)
             print(player_entry)
+            if player_entry['match'] < 80:
+                await message.channel.send(f'Could not find `{player}` among FPL API web names. Did you mean {player_entry["web_name"]}? [Match: {player_entry["match"]}%]')
+                return
+           
             fbref_id = player_entry['fbref_id']
             url = f"https://fbref.com/en/players/{fbref_id}/"
-            df = pd.read_html(url)
+            try:
+                df = pd.read_html(url)
+            except:
+                await message.channel.send(f'Error when reading {player_entry["web_name"]} overview page')
+                return
             target = df[0].dropna()
             embed = discord.Embed(title=f"{player_entry['first_name']} {player_entry['second_name']} - Overview", url=url, description="", color=discord.Color.blue())
             values = target.to_dict(orient='records')
